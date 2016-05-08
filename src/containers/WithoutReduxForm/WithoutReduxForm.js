@@ -59,10 +59,10 @@ export default class WithoutReduxForm extends Component {
 
         <label htmlFor="firstName">First name</label>
         <input type="text" className="form-control" value={firstName.value} onChange={event => this.onChange(event, 'firstName')} onBlur={event => this.onChange(event, 'firstName')}/>
-        {errors.firstName && <div className="text-danger">{errors.firstName}</div>}
+        {firstName.touched && errors.firstName && <div className="text-danger">{errors.firstName}</div>}
         <label htmlFor="lastName">Last name</label>
         <input type="text" className="form-control" value={lastName.value} onChange={event => this.onChange(event, 'lastName')} onBlur={event => this.onChange(event, 'lastName')}/>
-        {errors.lastName && <div className="text-danger">{errors.lastName}</div>}
+        {lastName.touched && errors.lastName && <div className="text-danger">{errors.lastName}</div>}
       </div>
     );
   }
