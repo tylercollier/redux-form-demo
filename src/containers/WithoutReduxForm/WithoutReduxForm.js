@@ -1,69 +1,67 @@
 import React, {Component} from 'react';
+import immutable from 'seamless-immutable';
 
 export default class WithoutReduxForm extends Component {
   constructor() {
     super(arguments);
     this.state = {
-      formValues: {
-        firstName: {
-          value: '',
-          touched: false
+      data: immutable({
+        formValues: {
+          firstName: {
+            value: '',
+            touched: false
+          },
+          lastName: {
+            value: '',
+            touched: false
+          }
         },
-        lastName: {
-          value: '',
-          touched: false
-        }
-      },
-      errors: {}
+        errors: {}
+      })
     };
   }
 
   onChange(event, inputName) {
-    const newState = Object.assign({}, this.state);
-    newState.formValues[inputName] = {
+    const newState = this.state.data.setIn(['formValues', inputName], {
       value: event.target.value,
       touched: true
-    };
-    this.setState(newState, this.validate);
+    });
+    this.setState({data: newState}, this.validateForm);
   }
 
-  validate() {
-    const updateState = inputNameX => {
-      if (this.state.formValues[inputNameX].value) {
-        const newState = Object.assign({}, this.state);
-        newState.errors[inputNameX] = null;
-        this.setState(newState);
-      } else {
-        const newState = Object.assign({}, this.state);
-        newState.errors[inputNameX] = 'This field is required';
-        this.setState(newState);
-      }
+  validateForm() {
+    const validateRequired = (inputName, data) => {
+      const value = data.formValues[inputName].value ? null : 'This field is required';
+      return data.setIn(['errors', inputName], value);
     };
-    for (const inputName of Object.keys(this.state.formValues)) {
+    const data = this.state.data;
+    let newData = data;
+    for (const inputName of Object.keys(data.formValues)) {
       switch (inputName) {
         case 'firstName':
-          updateState(inputName);
+          newData = validateRequired(inputName, newData);
           break;
         case 'lastName':
-          updateState(inputName);
+          newData = validateRequired(inputName, newData);
           break;
         default:
           throw new Error('Invalid inputName: ' + inputName);
       }
     }
+    this.setState({data: newData});
   }
 
   render() {
-    const { formValues: { firstName, lastName }, errors } = this.state;
+    const { formValues: { firstName, lastName }, errors } = this.state.data;
     return (
       <div className="container">
         <h1>Without Redux-Form</h1>
 
         <label htmlFor="firstName">First name</label>
-        <input type="text" className="form-control" {...firstName} onChange={event => this.onChange(event, 'firstName')} onBlur={event => this.onChange(event, 'firstName')}/>
+        <input type="text" className="form-control" value={firstName.value} onChange={event => this.onChange(event, 'firstName')} onBlur={event => this.onChange(event, 'firstName')}/>
         {errors.firstName && <div className="text-danger">{errors.firstName}</div>}
         <label htmlFor="lastName">Last name</label>
-        <input type="text" className="form-control" {...lastName} onChange={event => this.onChange(event, 'lastName')} onBlur={event => this.onChange(event, 'lastName')}/>
+        <input type="text" className="form-control" value={lastName.value} onChange={event => this.onChange(event, 'lastName')} onBlur={event => this.onChange(event, 'lastName')}/>
         {errors.lastName && <div className="text-danger">{errors.lastName}</div>}
       </div>
     );
