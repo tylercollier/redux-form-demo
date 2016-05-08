@@ -91,7 +91,10 @@ export default class App extends Component {
                 <NavItem eventKey={4}>About Us</NavItem>
               </LinkContainer>
               <LinkContainer to="/without-redux-form">
-                <NavItem eventKey={7}>Without Redux Form demo</NavItem>
+                <NavItem eventKey={7}>Without Redux-Form</NavItem>
+              </LinkContainer>
+              <LinkContainer to="/with-redux-form">
+                <NavItem eventKey={8}>With Redux-Form</NavItem>
               </LinkContainer>
 
               {!user &&

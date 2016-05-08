@@ -11,7 +11,8 @@ import {
     LoginSuccess,
     Survey,
     NotFound,
-    WithoutReduxForm
+    WithoutReduxForm,
+    WithReduxForm
   } from 'containers';
 
 export default (store) => {
@@ -52,6 +53,7 @@ export default (store) => {
       <Route path="survey" component={Survey}/>
       <Route path="widgets" component={Widgets}/>
       <Route path="without-redux-form" component={WithoutReduxForm}/>
+      <Route path="with-redux-form" component={WithReduxForm}/>
 
       { /* Catch all route */ }
       <Route path="*" component={NotFound} status={404} />
