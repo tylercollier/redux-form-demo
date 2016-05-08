@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 import immutable from 'seamless-immutable';
+import * as validation from './../../utils/validation';
+import mapValues from 'lodash/mapValues';
 
 export default class WithoutReduxForm extends Component {
   constructor() {
@@ -9,16 +11,21 @@ export default class WithoutReduxForm extends Component {
         formValues: {
           firstName: {
             value: '',
-            touched: false
+            touched: false,
+            errors: null
           },
           lastName: {
             value: '',
-            touched: false
+            touched: false,
+            errors: null
           }
-        },
-        errors: {}
+        }
       })
     };
+    this.validator = validation.createValidator({
+      firstName: validation.required,
+      lastName: validation.required
+    });
   }
 
   onChange(event, inputName) {
@@ -30,39 +37,25 @@ export default class WithoutReduxForm extends Component {
   }
 
   validateForm() {
-    const validateRequired = (inputName, data) => {
-      const value = data.formValues[inputName].value ? null : 'This field is required';
-      return data.setIn(['errors', inputName], value);
-    };
-    const data = this.state.data;
-    let newData = data;
-    for (const inputName of Object.keys(data.formValues)) {
-      switch (inputName) {
-        case 'firstName':
-          newData = validateRequired(inputName, newData);
-          break;
-        case 'lastName':
-          newData = validateRequired(inputName, newData);
-          break;
-        default:
-          throw new Error('Invalid inputName: ' + inputName);
-      }
-    }
+    const values = mapValues(this.state.data.formValues, value => value.value);
+    const errors = this.validator(values);
+    const valuesWithErrors = { formValues: mapValues(errors, (error) => { return {errors: error};}) };
+    const newData = this.state.data.merge(valuesWithErrors, {deep: true});
     this.setState({data: newData});
   }
 
   render() {
-    const { formValues: { firstName, lastName }, errors } = this.state.data;
+    const { formValues: { firstName, lastName } } = this.state.data;
     return (
       <div className="container">
         <h1>Without Redux-Form</h1>
 
         <label htmlFor="firstName">First name</label>
         <input type="text" className="form-control" value={firstName.value} onChange={event => this.onChange(event, 'firstName')} onBlur={event => this.onChange(event, 'firstName')}/>
-        {firstName.touched && errors.firstName && <div className="text-danger">{errors.firstName}</div>}
+        {firstName.touched && firstName.errors && <div className="text-danger">{firstName.errors}</div>}
         <label htmlFor="lastName">Last name</label>
         <input type="text" className="form-control" value={lastName.value} onChange={event => this.onChange(event, 'lastName')} onBlur={event => this.onChange(event, 'lastName')}/>
-        {lastName.touched && errors.lastName && <div className="text-danger">{errors.lastName}</div>}
+        {lastName.touched && lastName.errors && <div className="text-danger">{lastName.errors}</div>}
       </div>
     );
   }
